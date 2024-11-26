@@ -1,0 +1,3 @@
+aws_key:
+  spark_aws_access_key: ##spark_aws_access_key##
+  spark_aws_access_secret_key: ##spark_aws_access_secret_key##
