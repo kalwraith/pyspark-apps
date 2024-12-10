@@ -1,9 +1,11 @@
-from common.base_stream_app_ch13_6 import BaseStreamApp
+from common.ch15_5.base_stream_app import BaseStreamApp
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import get_json_object, col
 from pyspark.sql.types import IntegerType
 from pyspark.sql import SparkSession
 from datetime import datetime
+from common.kafka_sender import send_to_kafka_json_payload
+
 
 class RtBicycleRent(BaseStreamApp):
     def __init__(self, app_name):
@@ -160,10 +162,19 @@ class RtBicycleRent(BaseStreamApp):
 
             self.logger.write_log('info', f'Completed: Sink to S3 (기준 시간: {dttm})', epoch_id)
 
+        # rent_cnt or return_cnt 에서 1건 이라도 발생한 데이터는 kafka 로 전송
+        to_kafka_processed_df = processed_df.filter((col('rent_cnt') > 0) | (col('return_cnt') > 0))
+        send_to_kafka_json_payload(
+            df          = to_kafka_processed_df,
+            key_col_lst = ['stt_id','ymd','hh'],
+            val_col_lst = ['rent_cnt, return_cnt, lst_prk_cnt','stt_lttd','stt_lgtd','crt_dttm'],
+            topic_nm    = 'spark.bicycle.prk-chg-hist'
+        )
+
         now_stt_info_df = last_stt_df.alias('l').join(
-                other=processed_df.alias('p'),
-                on=['stt_id'],
-                how='full'
+        other=processed_df.alias('p'),
+        on=['stt_id'],
+        how='full'
         ).selectExpr(
             'stt_id                                               AS stt_id',
             'NVL(p.lst_prk_cnt, l.lst_prk_cnt)                      AS lst_prk_cnt'

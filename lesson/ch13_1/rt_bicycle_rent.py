@@ -1,4 +1,5 @@
-from common.base_stream_app import BaseStreamApp
+from common.ch13_1.base_stream_app import BaseStreamApp
+from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame
 
 
@@ -22,22 +23,23 @@ class RtBicycleRent(BaseStreamApp):
                 "CAST(value AS STRING) AS VALUE"
              ) \
             .writeStream \
-            .foreachBatch(self.for_each_batch) \
+            .foreachBatch(lambda df, epoch_id: self.for_each_batch(df, epoch_id, spark)) \
             .option("checkpointLocation", self.kafka_offset_dir) \
             .start()
         streaming_query.awaitTermination()
 
-    def _for_each_batch(self, df: DataFrame, epoch_id):
+    def _for_each_batch(self, df: DataFrame, epoch_id, spark: SparkSession):
         '''
         부모 클래스 함수 오버라이딩, 본 클래스의 로직 작성
         '''
-        self.logger('info','Micro batch start',epoch_id)
-        if self.log_mode == 'debug':
-            self.logger('debug', 'df.show()',epoch_id)
-            df.show(truncate=False)
+        self.logger('info','Micro batch start')
+        df.persist()
+        cnt = df.count()
+        self.logger('info', f'streaming 인입 건수: {cnt}')
+        df.show(truncate=False)
         self.logger('info', 'Micro batch end')
 
 
 if __name__ == '__main__':
-    rt_bicycle_rent = RtBicycleRent(app_name='rt_bicycle_rent_base')
+    rt_bicycle_rent = RtBicycleRent(app_name='rt_bicycle_rent')
     rt_bicycle_rent.main()

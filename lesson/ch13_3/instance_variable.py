@@ -1,8 +1,7 @@
-from common.base_stream_app import BaseStreamApp
+from common.ch13_1.base_stream_app import BaseStreamApp
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import get_json_object, col
 from pyspark.sql.types import IntegerType
-
 
 class RtBicycleRent(BaseStreamApp):
     def __init__(self, app_name):
@@ -15,12 +14,13 @@ class RtBicycleRent(BaseStreamApp):
         spark = self.get_session_builder().getOrCreate()
 
         # rslt_df 데이터프레임 공유하기
-        self.rslt_df = spark.createDataFrame([(None,None,None,None),],'STT_ID STRING, BASE_DT STRING, RENT_CNT INT, RETURN_CNT INT')
+        rslt_df = spark.createDataFrame([(None,None,None,None),],'STT_ID STRING, BASE_DT STRING, RENT_CNT INT, RETURN_CNT INT')
 
         streaming_query = spark.readStream \
             .format("kafka") \
             .option("kafka.bootstrap.servers", "kafka01:9092,kafka02:9092,kafka03:9092") \
             .option("subscribe", "lesson.spark-streaming.rslt-sample") \
+            .option('startingOffsets', 'earliest') \
             .load() \
             .selectExpr(
                 "CAST(key AS STRING) AS KEY",
@@ -38,11 +38,9 @@ class RtBicycleRent(BaseStreamApp):
             .start()
         streaming_query.awaitTermination()
 
-    def _for_each_batch(self, df: DataFrame, epoch_id):
+    def _for_each_batch(self, df: DataFrame, epoch_id, spark:SparkSession):
         self.logger.write_log('info', 'Micro batch start', epoch_id)
 
-        # rslt_df 데이터프레임은 누적 집계용 데이터프레임으로 Kafka 소스에서 들어오는 df 데이터프레임을 이용해
-        # 데이터를 계속 누적, 보관
         self.rslt_df = self.rslt_df.alias('r').join(
             other   = df.alias('i'),
             on      = ['STT_ID','BASE_DT'],
@@ -52,13 +50,14 @@ class RtBicycleRent(BaseStreamApp):
             'CASE WHEN r.BASE_DT IS NULL THEN i.BASE_DT ELSE r.BASE_DT END      AS BASE_DT',
             'NVL(r.RENT_CNT,0) + NVL(i.RENT_CNT,0)                              AS RENT_CNT',
             'NVL(r.RETURN_CNT,0) + NVL(i.RETURN_CNT,0)                          AS RETURN_CNT'
-        )
+        ).filter(col('STT_ID').isNotNull() | col('BASE_DT').isNotNull())
 
         self.logger.write_log('info','rslt_df.show()',epoch_id)
         self.rslt_df.show(truncate=False)
         self.logger.write_log('info', 'Micro batch end', epoch_id)
 
 
+
 if __name__ == '__main__':
-    rt_bicycle_rent = RtBicycleRent(app_name='instance_variable')
+    rt_bicycle_rent = RtBicycleRent(app_name='instance_dataframe')
     rt_bicycle_rent.main()

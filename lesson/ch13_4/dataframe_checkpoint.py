@@ -1,4 +1,4 @@
-from common.base_stream_app import BaseStreamApp
+from common.ch13_1.base_stream_app import BaseStreamApp
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import get_json_object, col
 from pyspark.sql.types import IntegerType
@@ -12,6 +12,9 @@ class RtBicycleRent(BaseStreamApp):
         # sparkSession 객체 얻기
         # 만약 다른 parameter를 추가하고 싶다면 self.get_session_builder() 뒤에 .config()을 사용하여 파라미터를 추가하고 getOrCreate 합니다.
         spark = self.get_session_builder().getOrCreate()
+
+        # 체크포인트 경로 설정, sparkSession 변수를 통해 설정합니다.
+        spark.sparkContext.setCheckpointDir(f'/home/spark/dataframe_checkpoints/{self.app_name}')
 
         # rslt_df 데이터프레임 공유하기
         self.rslt_df = spark.createDataFrame([(None,None,None,None),],'STT_ID STRING, BASE_DT STRING, RENT_CNT INT, RETURN_CNT INT')
@@ -53,11 +56,17 @@ class RtBicycleRent(BaseStreamApp):
         ).filter(col('STT_ID').isNotNull() | col('BASE_DT').isNotNull())
 
         self.logger.write_log('info','rslt_df.show()',epoch_id)
+        before_rdd_id = self.rslt_df.rdd.id()
+        self.rslt_df.checkpoint()
+        after_rdd_id = self.rslt_df.rdd.id()
+
+        # checkpoint 과정에서 Spark 내부적으로 여러 단계로 처리되며 rdd-id 가 증가하게 됩니다.
+        self.logger.write_log('info', f'self.rslt_df 체크포인트 완료, rdd_id 범위:{before_rdd_id} ~ {after_rdd_id})', epoch_id)
         self.rslt_df.show(truncate=False)
         self.logger.write_log('info', 'Micro batch end', epoch_id)
 
 
 
 if __name__ == '__main__':
-    rt_bicycle_rent = RtBicycleRent(app_name='instance_dataframe')
+    rt_bicycle_rent = RtBicycleRent(app_name='dataframe_checkpoint')
     rt_bicycle_rent.main()

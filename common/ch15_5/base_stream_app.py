@@ -54,14 +54,14 @@ class BaseStreamApp():
             .config('spark.executor.cores', self.SPARK_EXECUTOR_CORES) \
             .config('spark.sql.shuffle.partitions', self.SPARK_SQL_SHUFFLE_PARTITIONS)
 
-    def for_each_batch(self, df: DataFrame, epoch_id):
+    def for_each_batch(self, df: DataFrame, epoch_id, sparkSession):
         '''
         _for_each_batch 함수 실행 전, 후 공통 로직 삽입용도
         '''
-        self._for_each_batch(df, epoch_id)
+        self._for_each_batch(df, epoch_id, sparkSession)
         self.offset_commit(epoch_id)
 
-    def _for_each_batch(self, df: DataFrame, epoch_id):
+    def _for_each_batch(self, df: DataFrame, epoch_id, sparkSession):
         '''
         Spark Streaming Application 중 for each batch를 사용하는 경우 해당 함수를 재정의하여 사용합니다.
         '''
