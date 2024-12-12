@@ -24,14 +24,17 @@ csv_df = spark \
         .option('multiLine','true') \
         .schema(schema) \
         .csv(path)
-print('Complete: companies.csv Read')
+csv_df.persist()
+print('Complete: Read companies.csv')
+csv_df.show()
 
 csv_df.write \
         .format('parquet') \
-        .save('hdfs:///home/spark/lesson/parquet/companies.parq')
+        .mode('overwrite') \
+        .save('hdfs:///home/spark/lesson/parquet/companies')
 
 # 아래와 같이 작성해도 동일하게 동작
-# csv_df.write.parquet('hdfs:///home/spark/lesson/parquet/companies.parq')
+# csv_df.write.mode('overwrite').parquet('hdfs:///home/spark/lesson/parquet/companies')
 
 print('Complete: Save companies as parquet')
 
