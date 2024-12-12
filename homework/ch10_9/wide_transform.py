@@ -40,4 +40,4 @@ cnt_per_skills_df = job_skills_df.join(
 
 cnt_per_skills_df.persist()
 cnt_per_skills_df.show(truncate=False)
-time.sleep(300)
+time.sleep(600)
