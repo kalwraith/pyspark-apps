@@ -47,8 +47,7 @@ postings_df = spark.read \
                  .option('multiLine','true') \
                  .schema(postings_schema) \
                  .csv(postings_path)
-postings_df.repartition(6,'job_id')
-postings_df.persist()
+postings_df = postings_df.repartition(6,'job_id').persist()
 postings_cnt = postings_df.count()
 print(f'postings_df count: {postings_cnt}')
 

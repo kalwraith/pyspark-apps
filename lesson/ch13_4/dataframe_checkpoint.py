@@ -41,7 +41,7 @@ class RtBicycleRent(BaseStreamApp):
             .start()
         streaming_query.awaitTermination()
 
-    def _for_each_batch(self, df: DataFrame, epoch_id):
+    def _for_each_batch(self, df: DataFrame, epoch_id, spark:SparkSession):
         self.logger.write_log('info', 'Micro batch start', epoch_id)
 
         self.rslt_df = self.rslt_df.alias('r').join(

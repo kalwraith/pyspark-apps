@@ -63,5 +63,5 @@ class RtBicycleRent(BaseStreamApp):
 
 
 if __name__ == '__main__':
-    rt_bicycle_rent = RtBicycleRent(app_name='instance_variable')
+    rt_bicycle_rent = RtBicycleRent(app_name='global_dataframe')
     rt_bicycle_rent.main()

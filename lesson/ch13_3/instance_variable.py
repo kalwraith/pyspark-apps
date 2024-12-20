@@ -14,7 +14,7 @@ class RtBicycleRent(BaseStreamApp):
         spark = self.get_session_builder().getOrCreate()
 
         # rslt_df 데이터프레임 공유하기
-        rslt_df = spark.createDataFrame([(None,None,None,None),],'STT_ID STRING, BASE_DT STRING, RENT_CNT INT, RETURN_CNT INT')
+        self.rslt_df = spark.createDataFrame([(None,None,None,None),],'STT_ID STRING, BASE_DT STRING, RENT_CNT INT, RETURN_CNT INT')
 
         streaming_query = spark.readStream \
             .format("kafka") \
@@ -59,5 +59,5 @@ class RtBicycleRent(BaseStreamApp):
 
 
 if __name__ == '__main__':
-    rt_bicycle_rent = RtBicycleRent(app_name='instance_dataframe')
+    rt_bicycle_rent = RtBicycleRent(app_name='instance_variable')
     rt_bicycle_rent.main()
