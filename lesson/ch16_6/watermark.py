@@ -1,7 +1,7 @@
 from common.ch15_5.base_stream_app import BaseStreamApp
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import from_json, col, explode, window
-from pyspark.sql.types import StructType, StructField, ArrayType, StringType, TimestampType,
+from pyspark.sql.types import StructType, StructField, ArrayType, StringType, TimestampType
 from pyspark.sql import SparkSession
 
 

@@ -5,47 +5,51 @@ import time
 spark = SparkSession \
         .builder \
         .appName('driver_and_executor') \
+        .config('spark.executor.memory', '2g') \
+        .config('spark.executor.instances', '3') \
+        .config('spark.executor.cores', '2') \
         .getOrCreate()
 
 print(f'spark application start')
-company_emp_path = 'hdfs:///home/spark/sample/linkedin_jobs/companies/employee_counts.csv'
-company_emp_schema = 'company_id LONG,employee_count LONG,follower_count LONG,time_recorded TIMESTAMP'
-company_ind_path = 'hdfs:///home/spark/sample/linkedin_jobs/companies/company_industries.csv'
-company_ind_schema = 'company_id LONG, industry STRING'
+postings_path = 'hdfs:///home/spark/sample/linkedin_jobs/postings.csv'
+postings_schema = 'job_id                     LONG, ' \
+                  'company_name               STRING, ' \
+                  'title                      STRING, ' \
+                  'description                STRING, ' \
+                  'max_salary                 LONG, ' \
+                  'pay_period                 STRING, ' \
+                  'location                   STRING, ' \
+                  'company_id                 LONG, ' \
+                  'views                      LONG, ' \
+                  'med_salary                 LONG, ' \
+                  'min_salary                 LONG, ' \
+                  'formatted_work_type        STRING, ' \
+                  'applies                    LONG, ' \
+                  'original_listed_time       TIMESTAMP, ' \
+                  'remote_allowed             STRING, ' \
+                  'job_posting_url            STRING,' \
+                  'application_url            STRING, ' \
+                  'application_type           STRING, ' \
+                  'expiry                     STRING, ' \
+                  'closed_time                TIMESTAMP, ' \
+                  'formatted_experience_level STRING, ' \
+                  'skills_desc                STRING, ' \
+                  'listed_time                TIMESTAMP, ' \
+                  'posting_domain             STRING, ' \
+                  'sponsored                  LONG, ' \
+                  'work_type                  STRING, ' \
+                  'currency                   STRING, ' \
+                  'compensation_type          STRING'
 
-# employee_counts Load
-company_emp_df = spark.read \
+# postings Load
+postings_df = spark.read \
                  .option('header','true') \
                  .option('multiLine','true') \
-                 .schema(company_emp_schema) \
-                 .csv(company_emp_path)
-company_emp_df.persist()
-emp_cnt = company_emp_df.count()
-print(f'company_emp_df count: {emp_cnt}')
+                 .schema(postings_schema) \
+                 .csv(postings_path)
+postings_df.repartition(6,'job_id')
+postings_df.persist()
+postings_cnt = postings_df.count()
+print(f'postings_df count: {postings_cnt}')
 
-# employee_counts 중복 제거
-company_emp_dedup_df = company_emp_df.dropDuplicates(['company_id'])
-emp_dedup_cnt = company_emp_dedup_df.count()
-print(f'company_emp_dedup_df count: {emp_dedup_cnt}')
-
-# company_industries Load
-company_idu_df = spark.read \
-                 .option('header','true') \
-                 .option('multiLine','true') \
-                 .schema(company_ind_schema) \
-                 .csv(company_ind_path)
-company_idu_df.persist()
-idu_cnt = company_idu_df.count()
-print(f'company_idu_df count: {idu_cnt}')
-
-company_it_df = company_idu_df.filter(col('industry') == 'IT Services and IT Consulting')
-
-company_emp_cnt_df = company_emp_dedup_df.join(
-    other=company_it_df,
-    on='company_id',
-    how='inner'
-).select('company_id', 'employee_count') \
-    .sort('employee_count',ascending=False)
-
-company_emp_cnt_df.show()
 time.sleep(300)
