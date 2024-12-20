@@ -9,7 +9,6 @@ class RtBicycleRent(BaseStreamApp):
     def __init__(self, app_name):
         super().__init__(app_name)
         self.SPARK_SQL_SHUFFLE_PARTITIONS = '2'
-        self.log_mode = 'info'
         self.last_dttm = ''
 
     def init_call(self, spark_session: SparkSession):

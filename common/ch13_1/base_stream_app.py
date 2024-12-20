@@ -18,9 +18,9 @@ class BaseStreamApp():
         self.SPARK_DRIVER_CORES = '1'
         self.SPARK_DRIVER_MEMORY = '1g'
         self.SPARK_EXECUTOR_INSTANCES = '2'
-        self.SPARK_EXECUTOR_MEMORY = '1g'
-        self.SPARK_EXECUTOR_CORES = '1'
-        self.SPARK_SQL_SHUFFLE_PARTITIONS = '3'
+        self.SPARK_EXECUTOR_MEMORY = '2g'
+        self.SPARK_EXECUTOR_CORES = '2'
+        self.SPARK_SQL_SHUFFLE_PARTITIONS = '4'
 
         self.log_mode = ''
         self.set_argparse()
@@ -29,7 +29,7 @@ class BaseStreamApp():
         parser = argparse.ArgumentParser()
         parser.add_argument("-l", "--log_mode", default='info', help='info or debug')
         args = parser.parse_args()
-        self.log_mode = args['log_mode']
+        self.log_mode = args.log_mode
 
     def get_session_builder(self):
         return SparkSession \

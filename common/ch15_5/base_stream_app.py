@@ -18,11 +18,12 @@ class BaseStreamApp():
         self.SPARK_DRIVER_CORES = '1'
         self.SPARK_DRIVER_MEMORY = '1g'
         self.SPARK_EXECUTOR_INSTANCES = '2'
-        self.SPARK_EXECUTOR_MEMORY = '1g'
-        self.SPARK_EXECUTOR_CORES = '1'
-        self.SPARK_SQL_SHUFFLE_PARTITIONS = '3'
+        self.SPARK_EXECUTOR_MEMORY = '2g'
+        self.SPARK_EXECUTOR_CORES = '2'
+        self.SPARK_SQL_SHUFFLE_PARTITIONS = '4'
 
         # 파라미터 input 설정
+        self.log_mode = ''
         self.set_argparse()
         self.logger = Logger(app_name)
 

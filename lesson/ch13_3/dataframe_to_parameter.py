@@ -2,6 +2,8 @@ from common.ch13_1.base_stream_app import BaseStreamApp
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import get_json_object, col
 from pyspark.sql.types import IntegerType
+from pyspark.sql import SparkSession
+
 
 class RtBicycleRent(BaseStreamApp):
     def __init__(self, app_name):
