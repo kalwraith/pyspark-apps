@@ -42,7 +42,7 @@ class BaseStreamApp():
         parser = argparse.ArgumentParser()
         parser.add_argument("-l", "--log_mode", default='info', help='info or debug')
         args = parser.parse_args()
-        self.log_mode = args['log_mode']
+        self.log_mode = args.log_mode
 
     def get_session_builder(self):
         return SparkSession \
