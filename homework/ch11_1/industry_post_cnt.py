@@ -8,19 +8,44 @@ spark = SparkSession \
         .getOrCreate()
 
 postings_path = 'hdfs:///home/spark/lesson/linkedin_jobs/postings.csv'
-postings_schema = ('job_id LONG, company_name STRING, title STRING, description STRING, max_salary LONG, pay_period '
-                   'STRING, location STRING, company_id LONG, views LONG, med_salary LONG, min_salary LONG, '
-                   'formatted_work_type STRING, applies LONG, original_listed_time TIMESTAMP, remote_allowed STRING, '
-                   'job_posting_url STRING, application_url STRING, application_type STRING, expiry STRING, '
-                   'closed_time TIMESTAMP, formatted_experience_level STRING, skills_desc STRING, listed_time '
-                   'TIMESTAMP, posting_domain STRING, sponsored LONG, work_type STRING, currency STRING, '
-                   'compensation_type STRING')
+postings_schema = ('job_id LONG,'
+                   'company_name               STRING,'
+                   ' title                     STRING,'
+                   ' description               STRING,'
+                   ' max_salary                LONG, '
+                   'pay_period                 STRING, '
+                   'location                   STRING, '
+                   'company_id                 LONG, '
+                   'views                      LONG, '
+                   'med_salary                 LONG, '
+                   'min_salary                 LONG, '
+                   'formatted_work_type        STRING, '
+                   'applies                    LONG, '
+                   'original_listed_time       TIMESTAMP, '
+                   'remote_allowed             STRING, '
+                   'job_posting_url            STRING, '
+                   'application_url            STRING, '
+                   'application_type           STRING, '
+                   'expiry                     STRING, '
+                   'closed_time                TIMESTAMP, '
+                   'formatted_experience_level STRING, '
+                   'skills_desc                STRING, '
+                   'listed_time                TIMESTAMP, '
+                   'posting_domain             STRING, '
+                   'sponsored                  LONG, '
+                   'work_type                  STRING, '
+                   'currency                   STRING, '
+                   'compensation_type          STRING')
 company_emp_path = 'hdfs:///home/spark/lesson/linkedin_jobs/companies/employee_counts.csv'
-company_emp_schema = 'company_id LONG,employee_count STRING,follower_count STRING,time_recorded TIMESTAMP'
+company_emp_schema = 'company_id     LONG,' \
+                     'employee_count STRING,' \
+                     'follower_count STRING,' \
+                     'time_recorded  TIMESTAMP'
 company_ind_path = 'hdfs:///home/spark/lesson/linkedin_jobs/companies/company_industries.csv'
 company_ind_schema = 'company_id LONG, industry STRING'
-rslt_path = 'hdfs:///home/spark/homework/ch12.1/industry_post_cnt.parq'
+rslt_path = 'hdfs:///home/spark/homework/ch11.3/industry_post_cnt'
 
+## Program start
 postings_df = spark.read \
                  .option('header','true') \
                  .option('multiLine','true') \
@@ -58,7 +83,7 @@ WHERE 1=1
     AND e.employee_count >= 10000
 GROUP BY i.industry
 '''
-rslt_df = spark.sql(sql).repartition(3)
+rslt_df = spark.sql(sql).coalesce(3)
 rslt_df.write \
         .format('parquet') \
         .save(rslt_path)
