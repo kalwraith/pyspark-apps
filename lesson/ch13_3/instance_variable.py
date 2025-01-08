@@ -35,7 +35,7 @@ class RtBicycleRent(BaseStreamApp):
                 ,get_json_object(col('VALUE'), '$.RETURN_CNT').cast(IntegerType()).alias('RETURN_CNT')
              ) \
             .writeStream \
-            .foreachBatch(self.for_each_batch) \
+            .foreachBatch(lambda df, epoch_id: self.for_each_batch(df, epoch_id, spark)) \
             .option("checkpointLocation", self.kafka_offset_dir) \
             .start()
         streaming_query.awaitTermination()

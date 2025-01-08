@@ -6,7 +6,6 @@ from pyspark.sql.types import IntegerType
 class RtBicycleRent(BaseStreamApp):
     def __init__(self, app_name):
         super().__init__(app_name)
-        self.SPARK_SQL_SHUFFLE_PARTITIONS = '2'
 
     def main(self):
         # sparkSession 객체 얻기

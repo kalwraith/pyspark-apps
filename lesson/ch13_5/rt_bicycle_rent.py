@@ -1,4 +1,4 @@
-from common.ch13_6.base_stream_app import BaseStreamApp
+from common.ch13_1.base_stream_app import BaseStreamApp
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import get_json_object, col
 from pyspark.sql.types import IntegerType
