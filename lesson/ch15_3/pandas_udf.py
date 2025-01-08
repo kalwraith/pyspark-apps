@@ -12,8 +12,11 @@ class PandasUdf(BaseStreamApp):
         self.app_name = app_name
 
     def _main(self):
+        spark = self.get_session_builder() \
+            .config('spark.sql.execution.arrow.pyspark.enabled', 'true') \
+            .getOrCreate()
+
         pandas_udf_get_birth = pandas_udf(PandasUdf.get_birth2, IntegerType())
-        spark = self.get_spark_session(SparkSession)
         df = spark.createDataFrame([('kim','seoul',30),('park','busan',21)],'NAME STRING, ADDRESS STRING, AGE INT')
         df = df.withColumn(
             'BIRTH_YEAR_STT_METHOD',

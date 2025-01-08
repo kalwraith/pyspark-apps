@@ -10,8 +10,8 @@ class BadUdf(BaseStreamApp):
         self.app_name = app_name
 
     def _main(self):
+        spark = self.get_session_builder().getOrCreate()
         udf_get_birth = udf(BadUdf.get_birth2, IntegerType())
-        spark = self.get_spark_session(SparkSession)
         df = spark.createDataFrame([('kim','seoul',30),('park','busan',21)],'NAME STRING, ADDRESS STRING, AGE INT')
         df = df.withColumn(
             'BIRTH_YEAR_STT_METHOD',
