@@ -10,6 +10,9 @@ class PandasUdf(BaseStreamApp):
     def __init__(self, app_name):
         super().__init__(app_name)
         self.app_name = app_name
+        self.SPARK_EXECUTOR_INSTANCES = '1'
+        self.SPARK_EXECUTOR_MEMORY = '3g'
+        self.SPARK_EXECUTOR_CORES = '1'
 
     def main(self):
         self.logger.write_log('info','Job begin')
