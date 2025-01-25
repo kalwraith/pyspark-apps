@@ -9,6 +9,7 @@ class Logger:
             datefmt='%Y-%m-%d %H:%M:%S'
         )
         self.logger = logging.getLogger(app_name)
+        self.logger.setLevel(logging.DEBUG)
         self.app_name = app_name
         self.step_num = 0
         self.last_epoch_id = 0
